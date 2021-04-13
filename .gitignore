@@ -1,0 +1,5 @@
+build/*
+testing/build/*
+!build/build.sh
+!build/flist
+!build/verilator_build.sh

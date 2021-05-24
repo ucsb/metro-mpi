@@ -1,4 +1,7 @@
-# Metro-MPI is a library designed to parallelize Verilog HDL simulations using OpenMPI libraries through SystemVerilog's Direct Programming Interface.
+## Metro-MPI is a library designed to parallelize Verilog HDL simulations using OpenMPI libraries through SystemVerilog's Direct Programming Interface.
+
+
+Running the examples require the OpenMPI library and Synopsys VCS to be installed.
 
 To run a working example of the Metro-MPI library in use, head into the /build/ directory and run the `build.sh` script to compile the necessary files.
 

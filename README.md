@@ -1,14 +1,20 @@
-The /testing/ directory holds all the files for my test cases to make sure that DPI/MPI work properly.
+# Metro-MPI is a library designed to parallelize Verilog HDL simulations using OpenMPI libraries through SystemVerilog's Direct Programming Interface.
 
-To compile a cpp file into a library for use with SystemVerilog DPI, go into the build subfolder and run
-g++ -shared -fPIC ../cpp_filename.cpp -o cpp_filename.so
-(with files that include MPI calls replace g++ with mpic++)
+To run a working example of the Metro-MPI library in use, head into the /build/ directory and run the `build.sh` script to compile the necessary files.
 
-Then, in the same subfolder, compile the SystemVerilog file with
-vcs -sverilog ../sv_filename.sv
+Run the executable and link the newly created cpp library using
+`mpirun -np 2 ./simv -sv_lib sendrecv_cpp`
+(note that there is no .so after sendrecv_cpp)
 
-Finally, run the executable and link the newly created cpp library using
-./simv -sv_lib cpp_filename
-(note that there is no .so after cpp_filename)
 
-For mpi_communicate.cpp and mpi_hello.cpp, compile mpi with mpic++ instead of g++
+
+In case of the script not running, the functionality of the `build.sh` script is detailed below.
+
+To compile a cpp file into a library for use with SystemVerilog DPI, head into the build subfolder and run
+`mpic++ -shared -fPIC ../sendrecv_cpp.cpp -o sendrecv_cpp.so`
+(since the code includes MPI calls, we replace g++ with mpic++)
+
+Then, in the same build subfolder, compile the SystemVerilog file with
+`vcs -sverilog -cpp mpic++ -f flist`
+(-cpp option allows mpic++ to be used as the c++ compiler, and the flist contains the names of the required files)
+

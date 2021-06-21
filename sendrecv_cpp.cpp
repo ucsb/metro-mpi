@@ -19,12 +19,27 @@ extern "C" unsigned long long receive(int origin){
     return message;
 }
 
-extern "C" void snd(unsigned long long message, int dest, int cred, int rank){
+extern "C" unsigned long long receive_sig(int origin){
+    unsigned long long message;
     int message_len = 1;
-    if(cred > 0){
-        cout << "sending " << message << " to " << dest << endl;
-        MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, rank, MPI_COMM_WORLD);
-    }
+    MPI_Status status;
+    cout << "origin: " << origin << endl;
+    MPI_Recv(&message, message_len, MPI_UNSIGNED_INT, origin, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+    
+    cout << "signal: " << message << endl;
+    return message;
+}
+
+extern "C" void snd(unsigned long long message, int dest, int rank){
+    int message_len = 1;
+    cout << "sending " << message << " to " << dest << endl;
+    MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, rank, MPI_COMM_WORLD);
+}
+
+extern "C" void snd_sig(int message, int dest, int rank){
+    int message_len = 1;
+    cout << "sending " << message << " to " << dest << endl;
+    MPI_Send(&message, message_len, MPI_UNSIGNED_INT, dest, rank, MPI_COMM_WORLD);
 }
 
 extern "C" int getRank(){
@@ -44,12 +59,3 @@ extern "C" void finalize(){
     MPI_Finalize();
 }
 
-
-/* int main(int argc, char* argv[]){
-    int rank, size, length, finish;
-    char name[80];
-    MPI_Init(&argc,&argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	MPI_Get_processor_name(name, &length);
-} */

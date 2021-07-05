@@ -156,17 +156,10 @@ int main(int argc, char **argv, char **env) {
     reset_and_init();
 
 //    while (!Verilated::gotFinish()) { tick(); }
-    std::cout << "tick" << std::endl;
-    tick();
-    
-    top->eval();
-    std::cout << "eval" << std::endl;
-    tick();
-    std::cout << "tick" << std::endl;
-    tick();
-    std::cout << "tick" << std::endl;
-    top->eval();
-    std::cout << "eval" << std::endl;
+    for (int i = 0; i < 10; i++) {
+        std::cout << "tick" << std::endl;
+        tick();
+    }
     
     #ifdef VERILATOR_VCD
     std::cout << "Trace done" << std::endl;

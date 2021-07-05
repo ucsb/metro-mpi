@@ -22,8 +22,8 @@ module creditmpi_tb();
     wire valid, yumi;
     wire [63:0] data;
     wire [63:0] recv_data;
-    receiver rcv(.clk(clk), .rst_n(rst_n_recv), .valid(valid), .origin(data_origin), .data_out(recv_data), .yumi(yumi));
-    sender snd(.clk(clk), .rst_n(rst_n_send), .dest(dest), .rnk(rank), .valid(valid), .yumi(yumi));
+    //receiver rcv(.clk(clk), .rst_n(rst_n_recv), .valid(valid), .origin(data_origin), .data_out(recv_data), .yumi(yumi));
+    //sender snd(.clk(clk), .rst_n(rst_n_send), .dest(dest), .rnk(rank), .valid(valid), .yumi(yumi));
 
     initial begin
         rst_n_send = 0;

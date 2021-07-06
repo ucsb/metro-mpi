@@ -28,10 +28,21 @@ extern "C" unsigned long long receive(int origin){
     unsigned long long message;
     int message_len = 1;
     MPI_Status status;
-    cout << "Reciving Blockking origin: " << origin << endl;
+    cout << "[DPI CPP] Reciving Blockking origin: " << origin << endl << std::flush;
     MPI_Recv(&message, message_len, MPI_UNSIGNED_LONG_LONG, origin, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
     
-    cout << "signal: " << message << endl;
+    cout << "[DPI CPP] Message Received: " << message << endl << std::flush;
+    return message;
+}
+
+extern "C" unsigned long long receiveYummy(int origin){
+    unsigned long long message;
+    int message_len = 1;
+    MPI_Status status;
+    cout << "[DPI CPP] Reciving Blockking origin: " << origin << endl << std::flush;
+    MPI_Recv(&message, message_len, MPI_UNSIGNED_LONG_LONG, origin, 0, MPI_COMM_WORLD, &status);
+    
+    cout << "signal: " << message << endl << std::flush;
     return message;
 }
 
@@ -70,7 +81,25 @@ extern "C" int checkPendingMessages(){
 
 extern "C" void snd(unsigned long long message, int dest, int cred, int rank){
     int message_len = 1;
-    cout << "sending " << std::hex << message << " to " << dest << endl;
+    cout << "[DPI CPP] Sending " << std::hex << message << " to " << dest << endl;
+    MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, cred, MPI_COMM_WORLD);
+}
+extern "C" void mpi_send_yummy(unsigned long long message, int valid, int dest, int cred, int rank){
+    int message_len = 1;
+    cout << "[DPI CPP] Sending YUMMY " << std::hex << message << " to " << dest << endl << std::flush;
+    MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, 0, MPI_COMM_WORLD);
+}
+/*extern "C" void mpi_send_yummy(unsigned long long message, int valid, int dest, int cred, int rank){
+    int message_len = 2;
+    unsigned long long message_to_send[2];
+    message_to_send[0] = valid;
+    message_to_send[1] = message;
+    cout << "Sending YUMMY " << std::hex << message << " to " << dest << endl;
+    MPI_Send(&message_to_send, message_len, MPI_UNSIGNED_LONG_LONG, dest, cred, MPI_COMM_WORLD);
+}*/
+extern "C" void mpi_send_data(unsigned long long message, int dest, int cred, int rank){
+    int message_len = 1;
+    cout << "Sending DATA " << std::hex << message << " to " << dest << endl;
     MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, cred, MPI_COMM_WORLD);
 }
 

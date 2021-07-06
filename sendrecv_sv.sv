@@ -32,7 +32,7 @@ module receiver (
             yumi = 1'b1;
             $display("data_out: %h", data_out);
         end
-        snd()
+        //snd_sig()
     end
 
     always @(posedge clk) begin

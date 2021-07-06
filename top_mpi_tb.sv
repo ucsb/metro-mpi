@@ -13,7 +13,7 @@ module top_mpi_tb(
     //import "DPI-C" function longint unsigned receive(int origin);
     import "DPI-C" function int getMessageAsync(int origin, int tag);
     import "DPI-C" function int checkPendingMessages();
-    import "DPI-C" function longint unsigned receive_async(int origin);
+    import "DPI-C" function longint unsigned receive(int origin);
     import "DPI-C" function void snd(longint unsigned message, int dest, int cred, int rank);
     
     /*reg clk = 0;
@@ -35,17 +35,19 @@ module top_mpi_tb(
 
     logic [63:0] buffer_next;
 
-    /*receiver_mpi rcv(.clk_i(clk_i),
-                 .rstn_i(rstn_i),
-                 .origin_i(0),
-                 .rank_i(rank),
-                 .valid_i(valid_snd_rcv),
-                 .data_i(data_snd_rcv),
+    receiver_mpi rcv(.clk_i(clk_i),
+                     .rstn_i(rstn_i),
 
-                 .data_o(data_out),
-                 .yummy_o(yummy_rcv_snd));*/
+                     .origin_i(1),
+                     .rank_i(rank),
+                    
+                     .valid_i(valid_snd_rcv),
+                     .data_i(data_snd_rcv),
 
-    sender_mpi   snder(.clk_i(clk_i),
+                     .data_o(data_out),
+                     .yummy_o(yummy_rcv_snd));
+
+    /*sender_mpi   snder(.clk_i(clk_i),
                  .rstn_i(rstn_i),
                  
                  .dest_i(dest),
@@ -54,7 +56,7 @@ module top_mpi_tb(
                  //.yummy_i(yummy_rcv_snd),
                  .yummy_i(0),
                  .valid_o(valid_snd_rcv),
-                 .data_o(data_snd_rcv));
+                 .data_o(data_snd_rcv));*/
 
     assign rank_o = rank;
     assign valid_o = valid_snd_rcv;
@@ -69,24 +71,23 @@ module top_mpi_tb(
             dest = 1;
         end else begin
             dest = 0;
-            buffer_next = receive_async(0);
+            //buffer_next = receive_async(0);
 
         end
     end
 
     always_ff @( posedge clk_i ) begin
-        if (finalize_i) begin
-            finalize();
-        end
-        else if (rank == 1) begin
-            if (checkPendingMessages() == 1) begin
-                $display("Message received");
-                //$display("%d ", getMessageAsync(1, 0));
-                $display("message obtained");
-                snd(1,dest,1,rank);
-                //finalize();
-                buffer_next = receive_async(0);
+        if (rank == 1) begin
+            $display("[MPI TB] Sending from rank 1 to 0");
+            snd(1, dest, 1, rank);
+            $display("[MPI TB] Waiting rank 0 from rank 1");
+            buffer_next = receive(0);
+            $display("[MPI TB] Cycle rank 1");
+            if (finalize_i) begin
+                finalize();
             end
+        end else if (finalize_i) begin
+            finalize();
         end
     end
 

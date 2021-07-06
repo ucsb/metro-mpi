@@ -80,7 +80,8 @@ int main(int argc, char **argv, char **env) {
     std::cout << "RANK: " << top->rank_o << std::endl << std::flush;
     
     top->trace (tfp, 99);
-    std::string tracename ("my_top"+std::to_string(top->rank_o)+".vcd");
+    std::string rank = std::to_string(top->rank_o);
+    std::string tracename ("my_top"+rank+".vcd");
     const char *cstr = tracename.c_str();
     tfp->open(cstr);
     //tfp->open ("my_top.vcd");
@@ -90,8 +91,8 @@ int main(int argc, char **argv, char **env) {
     reset_and_init();
 
 //    while (!Verilated::gotFinish()) { tick(); }
-    for (int i = 0; i < 1000; i++) {
-        std::cout << "tick" << std::endl;
+    for (int i = 0; i < 10; i++) {
+        std::cout << rank << " tick" << std::endl;
         tick();
     }
     top->finalize_i = 1;

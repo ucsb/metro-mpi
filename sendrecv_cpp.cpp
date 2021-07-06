@@ -19,7 +19,7 @@ extern "C" unsigned long long receive(int origin){
     return message;
 }
 
-extern "C" unsigned long long receive_sig(int origin){
+extern "C" int receive_sig(int origin){
     unsigned long long message;
     int message_len = 1;
     MPI_Status status;

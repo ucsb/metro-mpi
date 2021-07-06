@@ -3,7 +3,7 @@ module receiver (
 ,   input rst_n
 ,   input valid
 ,   input int origin
-,   input buff
+,   input reg [63:0] buff
 ,   output reg [63:0] data_out
 ,   output reg yumi
 ,   output reg ready_recv
@@ -36,7 +36,6 @@ module receiver (
             yumi = 1'b1;
             $display("data_out: %h", data_out);
         end
-        snd()
     end
 
     always @(posedge clk) begin
@@ -64,8 +63,8 @@ module sender (
 ,   output reg ready_snd
 );
 
-    import "DPI-C" function longint unsigned receive(int origin);
-    import "DPI-C" function longint unsigned snd(longint unsigned message, int dest, int cred, int rank);
+    // import "DPI-C" function longint unsigned receive(int origin);
+    // import "DPI-C" function longint unsigned snd(longint unsigned message, int dest, int cred, int rank);
     localparam CREDIT_WIDTH = 3;
     reg [CREDIT_WIDTH-1:0] credit;
     reg [CREDIT_WIDTH-1:0] credit_next;

@@ -92,7 +92,7 @@ int main(int argc, char **argv, char **env) {
 
 //    while (!Verilated::gotFinish()) { tick(); }
     for (int i = 0; i < 10; i++) {
-        std::cout << rank << " tick" << std::endl;
+        std::cout << "Cycle: " << std::dec << main_time << std::endl;
         tick();
     }
     top->finalize_i = 1;

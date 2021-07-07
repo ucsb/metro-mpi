@@ -6,10 +6,33 @@ using namespace std;
 unsigned long long message_async;
 MPI_Status status_async;
 MPI_Request request_async;
+unsigned char valid_data_in;
+
+const int nitems=2;
+int          blocklengths[2] = {1,1};
+MPI_Datatype types[2] = {MPI_UNSIGNED_CHAR, MPI_UNSIGNED_LONG_LONG};
+MPI_Datatype mpi_data_type;
+MPI_Aint     offsets[2];
+
+
+
+typedef struct {
+    unsigned char valid;
+    unsigned long long data;
+} mpi_data_t;
 
 extern "C" void initialize(){
     MPI_Init(NULL, NULL);
     cout << "initializing" << endl;
+    
+
+    offsets[0] = offsetof(mpi_data_t, valid);
+    offsets[1] = offsetof(mpi_data_t, data);
+
+    MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_data_type);
+    MPI_Type_commit(&mpi_data_type);
+
+    valid_data_in = 0;
 }
 
 
@@ -40,117 +63,55 @@ extern "C" unsigned long long receiveYummy(int origin){
     int message_len = 1;
     MPI_Status status;
     cout << "[DPI CPP] Reciving Blockking origin: " << origin << endl << std::flush;
-    MPI_Recv(&message, message_len, MPI_UNSIGNED_LONG_LONG, origin, 0, MPI_COMM_WORLD, &status);
+    MPI_Recv(&message, message_len, MPI_UNSIGNED_CHAR, origin, 0, MPI_COMM_WORLD, &status);
     
     cout << "signal: " << message << endl << std::flush;
     return message;
 }
 
-/*extern "C" unsigned long long receive_async(int origin, int tag){
-    unsigned long long message;
-    int message_len = 1;
-    //MPI_Status status;
-    cout << "Receive Async from: " << origin << endl;
-    MPI_Irecv(&message_async, message_len, MPI_UNSIGNED_LONG_LONG, origin, MPI_ANY_TAG, MPI_COMM_WORLD, &request_async);
-    
-    //cout << "message: " << std::hex << message << endl;
-    return message;
-}*/
-
-extern "C" int getMessageAsync(int origin, int tag){
-    int flag;
-    cout << "Waiting message " << endl;
-    flag = MPI_Wait(&request_async,&status_async);
-    return flag;
-}
-
-
-extern "C" int waitMessageAsync(int origin, int tag){
-    int flag;
-    cout << "Getting message Probe: " << endl;
-    flag = MPI_Probe(origin, tag, MPI_COMM_WORLD, &status_async);
-    return flag;
-}
-
-extern "C" int checkPendingMessages(){
-    int flag;
-    MPI_Test(&request_async, &flag, &status_async);
-    cout << "Checking async message: " << flag << endl;
-    return flag;
-}
-
-extern "C" void snd(unsigned long long message, int dest, int cred, int rank){
-    int message_len = 1;
-    cout << "[DPI CPP] Sending " << std::hex << message << " to " << dest << endl;
-    MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, cred, MPI_COMM_WORLD);
-}
-extern "C" void mpi_send_yummy(unsigned long long message, int valid, int dest, int cred, int rank){
-    int message_len = 1;
-    cout << "[DPI CPP] Sending YUMMY " << std::hex << message << " to " << dest << endl << std::flush;
-    MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, 0, MPI_COMM_WORLD);
-}
-/*extern "C" void mpi_send_yummy(unsigned long long message, int valid, int dest, int cred, int rank){
-    int message_len = 2;
-    unsigned long long message_to_send[2];
-    message_to_send[0] = valid;
-    message_to_send[1] = message;
-    cout << "Sending YUMMY " << std::hex << message << " to " << dest << endl;
-    MPI_Send(&message_to_send, message_len, MPI_UNSIGNED_LONG_LONG, dest, cred, MPI_COMM_WORLD);
-}*/
-extern "C" void mpi_send_data(unsigned long long message, int dest, int cred, int rank){
-    int message_len = 1;
-    cout << "Sending DATA " << std::hex << message << " to " << dest << endl;
-    MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, cred, MPI_COMM_WORLD);
-}
-
-
-
-/*extern "C" unsigned long long receive_async(int origin){
-    unsigned long long message;
-    int message_len = 1;
-    //MPI_Status status;
-    cout << "Receive Async from: " << origin << endl;
-    MPI_Irecv(&message_async, message_len, MPI_UNSIGNED_LONG_LONG, origin, MPI_ANY_TAG, MPI_COMM_WORLD, &request_async);
-    
-    //cout << "message: " << std::hex << message << endl;
-    return message;
-}
-
-extern "C" int checkPendingMessages(){
-    int flag;
-    MPI_Test(&request_async, &flag, &status_async);
-    cout << "Checking async message: " << flag << endl;
-    return flag;
-}
-
-extern "C" unsigned long long receive_sig(int origin){
-    unsigned long long message;
+// Yummy MPI functions
+extern "C" unsigned char mpi_receive_yummy(int origin){
+    unsigned char message;
     int message_len = 1;
     MPI_Status status;
-    cout << "origin: " << origin << endl;
-    MPI_Recv(&message, message_len, MPI_UNSIGNED, origin, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+    cout << "[DPI CPP] Block Receive YUMMY from rank: " << origin << endl << std::flush;
+    MPI_Recv(&message, message_len, MPI_UNSIGNED_CHAR, origin, 1, MPI_COMM_WORLD, &status);
     
-    cout << "signal: " << message << endl;
+    cout << "Yummy received: " << std::hex << (int)message << endl << std::flush;
     return message;
 }
 
-extern "C" void send(unsigned long long message, int dest, int cred, int rank){
+extern "C" void mpi_send_yummy(unsigned char message, int dest, int rank){
     int message_len = 1;
-    cout << "sending " << std::hex << message << " to " << dest << endl;
-    MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, rank, MPI_COMM_WORLD);
+    cout << "[DPI CPP] Sending YUMMY " << std::hex << (int)message << " to " << dest << endl << std::flush;
+    MPI_Send(&message, message_len, MPI_UNSIGNED_CHAR, dest, 1, MPI_COMM_WORLD);
 }
 
-extern "C" void snd(unsigned long long message, int dest, int rank){
+extern "C" void mpi_send_data(unsigned long long data, unsigned char valid, int dest, int rank){
     int message_len = 1;
-    cout << "sending " << std::hex << message << " to " << dest << endl;
-    MPI_Send(&message, message_len, MPI_UNSIGNED_LONG_LONG, dest, rank, MPI_COMM_WORLD);
+    mpi_data_t message;
+    //cout << "valid: " << std::hex << valid << std::endl;
+    message.valid = valid;
+    message.data  = data;
+    cout << "Sending DATA valid: " << std::hex << (int)message.valid << " data: " << message.data << " to " << dest << endl;
+    MPI_Send(&message, message_len, mpi_data_type, dest, 0, MPI_COMM_WORLD);
 }
 
-extern "C" void snd_sig(int message, int dest, int rank){
+extern "C" char mpi_get_valid(){
+    return valid_data_in;
+}
+
+extern "C" unsigned long long mpi_receive_data(int origin){
     int message_len = 1;
-    cout << "sending " << message << " to " << dest << endl;
-    MPI_Send(&message, message_len, MPI_UNSIGNED, dest, rank, MPI_COMM_WORLD);
-}*/
+    MPI_Status status;
+    mpi_data_t message;
+    cout << "[DPI CPP] Blocking Receive data rank: " << origin << endl << std::flush;
+    MPI_Recv(&message, message_len, mpi_data_type, origin, 0, MPI_COMM_WORLD, &status);
+    
+    cout << "[DPI CPP] Data Message received: " << (int) message.valid << " " << message.data << endl << std::flush;
+    valid_data_in = message.valid;
+    return message.data;
+}
 
 extern "C" int getRank(){
     int rank;

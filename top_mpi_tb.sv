@@ -16,8 +16,7 @@ module top_mpi_tb(
     import "DPI-C" function void mpi_send_yummy(byte unsigned valid, int dest, int rank);
     import "DPI-C" function byte unsigned mpi_receive_yummy(int origin);
 
-    import "DPI-C" function longint unsigned mpi_receive_data(int origin);
-    import "DPI-C" function byte unsigned mpi_get_valid();
+    import "DPI-C" function longint unsigned mpi_receive_data(int origin, output byte unsigned valid);
     import "DPI-C" function void mpi_send_data(longint unsigned data, byte unsigned valid, int dest, int rank);
     
     /*reg clk = 0;
@@ -27,6 +26,8 @@ module top_mpi_tb(
             #10;
         end
 	end*/
+
+    byte valid_argument;
 
     logic yummy_rcv_snd, valid_snd_rcv;
     

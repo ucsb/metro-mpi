@@ -6,7 +6,6 @@ using namespace std;
 unsigned long long message_async;
 MPI_Status status_async;
 MPI_Request request_async;
-unsigned char valid_data_in;
 
 const int nitems=2;
 int          blocklengths[2] = {1,1};
@@ -25,37 +24,13 @@ extern "C" void initialize(){
     MPI_Init(NULL, NULL);
     cout << "initializing" << endl;
     
-
+    // Initialize the struct data&valid
     offsets[0] = offsetof(mpi_data_t, valid);
     offsets[1] = offsetof(mpi_data_t, data);
 
     MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_data_type);
     MPI_Type_commit(&mpi_data_type);
 
-    valid_data_in = 0;
-}
-
-
-extern "C" unsigned long long receive_async(int origin){
-    unsigned long long message;
-    int message_len = 1;
-    //MPI_Status status;
-    cout << "Receive Async from: " << origin << endl;
-    MPI_Irecv(&message_async, message_len, MPI_UNSIGNED_LONG_LONG, origin, MPI_ANY_TAG, MPI_COMM_WORLD, &request_async);
-    
-    //cout << "message: " << std::hex << message << endl;
-    return message;
-}
-
-extern "C" unsigned long long receive(int origin){
-    unsigned long long message;
-    int message_len = 1;
-    MPI_Status status;
-    cout << "[DPI CPP] Reciving Blockking origin: " << origin << endl << std::flush;
-    MPI_Recv(&message, message_len, MPI_UNSIGNED_LONG_LONG, origin, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-    
-    cout << "[DPI CPP] Message Received: " << message << endl << std::flush;
-    return message;
 }
 
 extern "C" unsigned long long receiveYummy(int origin){
@@ -69,7 +44,7 @@ extern "C" unsigned long long receiveYummy(int origin){
     return message;
 }
 
-// Yummy MPI functions
+// MPI Yummy functions
 extern "C" unsigned char mpi_receive_yummy(int origin){
     unsigned char message;
     int message_len = 1;
@@ -87,6 +62,7 @@ extern "C" void mpi_send_yummy(unsigned char message, int dest, int rank){
     MPI_Send(&message, message_len, MPI_UNSIGNED_CHAR, dest, 1, MPI_COMM_WORLD);
 }
 
+// MPI data&Valid functions
 extern "C" void mpi_send_data(unsigned long long data, unsigned char valid, int dest, int rank){
     int message_len = 1;
     mpi_data_t message;
@@ -97,11 +73,7 @@ extern "C" void mpi_send_data(unsigned long long data, unsigned char valid, int 
     MPI_Send(&message, message_len, mpi_data_type, dest, 0, MPI_COMM_WORLD);
 }
 
-extern "C" char mpi_get_valid(){
-    return valid_data_in;
-}
-
-extern "C" unsigned long long mpi_receive_data(int origin){
+extern "C" unsigned long long mpi_receive_data(int origin, unsigned char* valid){
     int message_len = 1;
     MPI_Status status;
     mpi_data_t message;
@@ -109,7 +81,7 @@ extern "C" unsigned long long mpi_receive_data(int origin){
     MPI_Recv(&message, message_len, mpi_data_type, origin, 0, MPI_COMM_WORLD, &status);
     
     cout << "[DPI CPP] Data Message received: " << (int) message.valid << " " << message.data << endl << std::flush;
-    valid_data_in = message.valid;
+    *valid = message.valid;
     return message.data;
 }
 
@@ -126,7 +98,7 @@ extern "C" int getSize(){
 }
 
 extern "C" void finalize(){
-    cout << "finalizing" << endl;
+    cout << "[DPI CPP] Finalizing" << endl;
     MPI_Finalize();
 }
 

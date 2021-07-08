@@ -25,11 +25,10 @@ module fake_node_mpi (
     import "DPI-C" function void mpi_send_yummy(byte unsigned valid, int dest, int rank);
     import "DPI-C" function byte unsigned mpi_receive_yummy(int origin);
 
-    import "DPI-C" function longint unsigned mpi_receive_data(int origin);
-    import "DPI-C" function byte unsigned mpi_get_valid();
+    import "DPI-C" function longint unsigned mpi_receive_data(int origin, output byte unsigned valid);
     import "DPI-C" function void mpi_send_data(longint unsigned data, byte unsigned valid, int dest, int rank);
 
-    byte unsigned message;
+    byte unsigned message, valid_argument;
 
     logic [63:0] buffer_data_in, buffer_data_yummy_out;
     
@@ -46,7 +45,7 @@ module fake_node_mpi (
 
                     .rank_i(rank_i),
 
-                    .valid_i(valid_data_in[0]),
+                    .valid_i(valid_argument[0]),
                     .data_i(buffer_data_in),
                     
                     .data_o(buffer_data_yummy_out),
@@ -90,8 +89,8 @@ module fake_node_mpi (
 
                 // Now we listen for data receive
                 $display("[SV] Receiving data");
-                buffer_data_in <= mpi_receive_data(origin_i);
-                valid_data_in  <= mpi_get_valid();
+                buffer_data_in <= mpi_receive_data(origin_i, valid_argument);
+                $display("valid argument %d", valid_argument);
                 
 
                 // Now we listen for yummy receive

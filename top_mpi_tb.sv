@@ -3,7 +3,8 @@ module top_mpi_tb(
     input  logic rstn_i,
     input  logic finalize_i,
     output int   rank_o,
-    output logic valid_o
+    output logic valid_o,
+    input  logic mpi_work
 );
 
 
@@ -48,7 +49,8 @@ module top_mpi_tb(
 
                         .origin_i(dest),
                         .dest_i(dest),
-                        .rank_i(rank));
+                        .rank_i(rank),
+                        .mpi_work(mpi_work));
                         
                         //.valid_i(valid_snd_rcv),
                         //.data_i(data_snd_rcv),
@@ -79,24 +81,27 @@ module top_mpi_tb(
             // Do nothing
             fake_valid_data <= 'h0;
         end else begin
-            if (rank == 1) begin
+            if (mpi_work && rank == 1) begin
                 if (finalize_i) begin
                     finalize();
                     $finish;
                 end else begin
                     $display("[MPI TB] Sending from rank 1 to 0");
-                    //mpi_send_yummy(0, dest, rank);
+                    mpi_send_yummy(0, dest, rank);
                     mpi_send_data({32'b0,$urandom()}, {7'b0,fake_valid_data}, dest, rank);
                     fake_valid_data <= !fake_valid_data;
-                    //$display("[MPI TB] Waiting rank 0 from rank 1");
-                    //mpi_data_in <= mpi_receive_data(dest);
+                    $display("[MPI TB] Receiving from rank 0");
+                    mpi_data_in <= mpi_receive_data(dest, mpi_valid_in);
                     //mpi_valid_in <= mpi_get_valid();
-                    buffer_next_yummy = mpi_receive_yummy(dest);
+                    buffer_next_yummy <= mpi_receive_yummy(dest);
                     $display("[MPI TB] Cycle rank 1");
                 end
             end else if (finalize_i) begin
                 finalize();
                 $finish;
+            end else begin
+                fake_valid_data <= fake_valid_data;
+                buffer_next_yummy <= buffer_next_yummy;
             end
         end
     end

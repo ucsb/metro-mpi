@@ -38,7 +38,12 @@ double sc_time_stamp () { // Called by $time in Verilog
 }
 
 void tick() {
+    // MPI work
     top->clk_i = !top->clk_i;
+    top->mpi_work = 1;
+    top->eval();
+    // Regular clock
+    top->mpi_work = 0;
     main_time += 1;
     top->eval();
     tfp->dump(main_time);
@@ -91,7 +96,7 @@ int main(int argc, char **argv, char **env) {
     reset_and_init();
 
 //    while (!Verilated::gotFinish()) { tick(); }
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 20; i++) {
         std::cout << "Cycle: " << std::dec << main_time << std::endl;
         tick();
     }

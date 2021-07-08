@@ -33,17 +33,6 @@ extern "C" void initialize(){
 
 }
 
-extern "C" unsigned long long receiveYummy(int origin){
-    unsigned long long message;
-    int message_len = 1;
-    MPI_Status status;
-    cout << "[DPI CPP] Reciving Blockking origin: " << origin << endl << std::flush;
-    MPI_Recv(&message, message_len, MPI_UNSIGNED_CHAR, origin, 0, MPI_COMM_WORLD, &status);
-    
-    cout << "signal: " << message << endl << std::flush;
-    return message;
-}
-
 // MPI Yummy functions
 extern "C" unsigned char mpi_receive_yummy(int origin){
     unsigned char message;
@@ -52,7 +41,7 @@ extern "C" unsigned char mpi_receive_yummy(int origin){
     cout << "[DPI CPP] Block Receive YUMMY from rank: " << origin << endl << std::flush;
     MPI_Recv(&message, message_len, MPI_UNSIGNED_CHAR, origin, 1, MPI_COMM_WORLD, &status);
     
-    cout << "Yummy received: " << std::hex << (int)message << endl << std::flush;
+    cout << "[DPI CPP] Yummy received: " << std::hex << (int)message << endl << std::flush;
     return message;
 }
 
@@ -69,7 +58,7 @@ extern "C" void mpi_send_data(unsigned long long data, unsigned char valid, int 
     //cout << "valid: " << std::hex << valid << std::endl;
     message.valid = valid;
     message.data  = data;
-    cout << "Sending DATA valid: " << std::hex << (int)message.valid << " data: " << message.data << " to " << dest << endl;
+    cout << "[DPI CPP] Sending DATA valid: " << std::hex << (int)message.valid << " data: " << message.data << " to " << dest << endl;
     MPI_Send(&message, message_len, mpi_data_type, dest, 0, MPI_COMM_WORLD);
 }
 

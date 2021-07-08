@@ -6,8 +6,9 @@ module fake_node_mpi (
     
     input  int              rank_i,
     input  int              origin_i,
-    input  int              dest_i
+    input  int              dest_i,
 
+    input logic             mpi_work
     // MPI based
     //input  logic            yummy_i,
     //input  logic            valid_i,
@@ -30,14 +31,14 @@ module fake_node_mpi (
 
     byte unsigned message, valid_argument;
 
-    logic [63:0] buffer_data_in, buffer_data_yummy_out;
+    logic [63:0] buffer_data_in, buffer_data_yummy_out, buffer_data_out;
     
-    logic [7:0] buffer_yummy_in, valid_data_int, valid_data_in;
+    logic [7:0] buffer_yummy_in, valid_data_int;
 
-    //logic valid_yummy_in;
+    logic valid_yummy_in;
     logic valid_yummy_out;
-    //logic valid_data_out;
-    //logic valid_data_in;
+    logic valid_data_out;
+    logic valid_data_in;
 
     // Instance that receives data and sends yummy
     receiver_mpi rcv(.clk_i(clk_i),
@@ -45,11 +46,20 @@ module fake_node_mpi (
 
                     .rank_i(rank_i),
 
-                    .valid_i(valid_argument[0]),
+                    .valid_i(valid_data_in),
                     .data_i(buffer_data_in),
                     
                     .data_o(buffer_data_yummy_out),
                     .yummy_o(valid_yummy_out));
+    
+    sender_mpi  snd(.clk_i(clk_i),
+                    .rstn_i(rstn_i),
+
+                    .dest_i(dest_i),
+                    .rank_i(rank_i),
+                    .yummy_i(valid_yummy_in),
+                    .data_o(buffer_data_out),
+                    .valid_o(valid_data_out));
     
     //assign valid_data_out  = 0;
 
@@ -68,17 +78,13 @@ module fake_node_mpi (
             valid_data_int  <= 'h0;
         end
         else begin
-            if (rank_i==0) begin
+            if (mpi_work && rank_i==0) begin
                 $display("[SV] Start Cycle Fake Node ");
             
                 // first we send data
-                //if (valid_data_out) begin
-                //$display("[SV] Sending");
-                //valid_data_int <= {7'b0, 1'b1};
-                //mpi_send_data(1, 1, origin_i, rank_i);
-                //end else begin
-                //    mpi_send_data(1, 1, origin_i, 0, rank_i);
-                //end
+                $display("[SV] Sending Data&valid");
+                valid_data_int <= {7'b0, valid_data_out};
+                mpi_send_data(buffer_data_out, valid_data_int, origin_i, rank_i);
 
                 // Now we send yummy
                 $display("[SV] Handling yummy out");
@@ -90,13 +96,16 @@ module fake_node_mpi (
                 // Now we listen for data receive
                 $display("[SV] Receiving data");
                 buffer_data_in <= mpi_receive_data(origin_i, valid_argument);
-                $display("valid argument %d", valid_argument);
+                valid_data_in <= valid_argument[0];
                 
 
                 // Now we listen for yummy receive
-                /*$display("handling yummy in");
+                $display("[SV] handling yummy in");
                 buffer_yummy_in <= mpi_receive_yummy(origin_i);
-                valid_yummy_in <= buffer_yummy_in[0];*/
+                valid_yummy_in <= buffer_yummy_in[0];
+            end else begin
+                buffer_data_in <= buffer_data_in;
+                message <= message;
             end
             
         end

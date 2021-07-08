@@ -1,3 +1,5 @@
+import metro_mpi_pkg::*;
+
 module top_mpi_tb(
     input  logic clk_i,
     input  logic rstn_i,
@@ -6,19 +8,6 @@ module top_mpi_tb(
     output logic valid_o,
     input  logic mpi_work
 );
-
-
-    import "DPI-C" function void initialize();
-    import "DPI-C" function void finalize();
-    import "DPI-C" function int getRank();
-    import "DPI-C" function int getSize();
-
-    //import "DPI-C" function longint unsigned receive(int origin);
-    import "DPI-C" function void mpi_send_yummy(byte unsigned valid, int dest, int rank);
-    import "DPI-C" function byte unsigned mpi_receive_yummy(int origin);
-
-    import "DPI-C" function longint unsigned mpi_receive_data(int origin, output byte unsigned valid);
-    import "DPI-C" function void mpi_send_data(longint unsigned data, byte unsigned valid, int dest, int rank);
     
     /*reg clk = 0;
     initial begin

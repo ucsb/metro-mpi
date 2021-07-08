@@ -19,15 +19,6 @@ module fake_node_mpi (
     
     //output logic            yummy_o
 );
-    //import "DPI-C" function longint unsigned receive(int origin);
-    //import "DPI-C" function longint unsigned mpi_send_data(longint unsigned message, int valid, int dest, int cred, int rank);
-    //import "DPI-C" function longint unsigned mpi_receive_data(longint unsigned message, int valid, int dest, int cred, int rank);
-
-    import "DPI-C" function void mpi_send_yummy(byte unsigned valid, int dest, int rank);
-    import "DPI-C" function byte unsigned mpi_receive_yummy(int origin);
-
-    import "DPI-C" function longint unsigned mpi_receive_data(int origin, output byte unsigned valid);
-    import "DPI-C" function void mpi_send_data(longint unsigned data, byte unsigned valid, int dest, int rank);
 
     byte unsigned message, valid_argument;
 

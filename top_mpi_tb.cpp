@@ -39,8 +39,12 @@ double sc_time_stamp () { // Called by $time in Verilog
 
 void tick() {
     // MPI work
-    top->clk_i = !top->clk_i;
+    
+    top->eval();
     top->mpi_work = 1;
+    top->eval();
+    top->clk_i = !top->clk_i;
+    
     top->eval();
     // Regular clock
     top->mpi_work = 0;
@@ -101,7 +105,7 @@ int main(int argc, char **argv, char **env) {
         tick();
     }
     top->finalize_i = 1;
-    tick();
+    top->eval();
 
     //std::cout << "Trace done" << std::endl;
     tfp->close();

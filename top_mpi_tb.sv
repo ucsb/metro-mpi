@@ -33,7 +33,7 @@ module top_mpi_tb(
 
     logic fake_valid_data;
 
-    fake_node_mpi node0(.clk_i(clk_i),
+    fake_node_mpi node(.clk_i(clk_i),
                         .rstn_i(rstn_i),
 
                         .origin_i(dest),
@@ -65,7 +65,14 @@ module top_mpi_tb(
         end
     end
 
-    always_ff @( posedge clk_i, negedge rstn_i) begin
+    always_comb begin
+        if (finalize_i) begin
+            finalize();
+            $finish;
+        end
+    end
+
+    /*always_ff @( posedge clk_i, negedge rstn_i) begin
         if (!rstn_i) begin
             // Do nothing
             fake_valid_data <= 'h0;
@@ -93,7 +100,7 @@ module top_mpi_tb(
                 buffer_next_yummy <= buffer_next_yummy;
             end
         end
-    end
+    end*/
 
 endmodule
 

@@ -74,6 +74,11 @@ extern "C" unsigned long long mpi_receive_data(int origin, unsigned char* valid)
     return message.data;
 }
 
+extern "C" void barrier(){
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "barrier" << endl;
+}
+
 extern "C" int getRank(){
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);

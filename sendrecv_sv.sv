@@ -3,11 +3,13 @@ module receiver (
 ,   input rst_n
 ,   input valid
 ,   input int origin
+,   input reg [63:0] buff
 ,   output reg [63:0] data_out
 ,   output reg yumi
+,   output reg ready_recv
 );
-    import "DPI-C" function longint unsigned receive(int origin);
-    import "DPI-C" function longint unsigned snd_sig(longint unsigned message, int dest, int cred, int rank);
+    // import "DPI-C" function longint unsigned receive(int origin);
+    // import "DPI-C" function longint unsigned snd_sig(longint unsigned message, int dest, int cred, int rank);
 
     localparam CREDIT_WIDTH = 3;
     // localparam BUFFER_DEPTH_LOG2 = 1;
@@ -18,11 +20,13 @@ module receiver (
     reg [CREDIT_WIDTH-1:0] credit_next;
     
     always @* begin
+        ready_recv = 1'b0;
         yumi = 1'b0;
         data_out = 64'b0;
         credit_next = credit;
         if (valid && (credit != 0)) begin
-            buffer_next = receive(origin);
+            ready_recv = 1'b1;
+            buffer_next = buff;
             credit_next = credit - 1;
             $display("credit_next: %h", credit_next);
         end
@@ -56,14 +60,15 @@ module sender (
 ,   input int rnk
 ,   output reg valid
 ,   input yumi
+,   output reg [63:0] data_out
+,   output reg ready_snd
 );
 
-    import "DPI-C" function longint unsigned receive(int origin);
-    import "DPI-C" function longint unsigned snd(longint unsigned message, int dest, int cred, int rank);
+    // import "DPI-C" function longint unsigned receive(int origin);
+    // import "DPI-C" function longint unsigned snd(longint unsigned message, int dest, int cred, int rank);
     localparam CREDIT_WIDTH = 3;
     reg [CREDIT_WIDTH-1:0] credit;
     reg [CREDIT_WIDTH-1:0] credit_next;
-    reg [63:0] data_out;
 
     always @(posedge clk) begin
         if (~rst_n) begin
@@ -75,6 +80,7 @@ module sender (
     end
 
     always @* begin
+        ready_snd = 1'b0;
         valid = 1'b0;
         data_out = 64'h0;
         credit_next = credit;
@@ -82,7 +88,8 @@ module sender (
             valid = 1'b1;
             data_out = 64'hdeedabba_cafeface;
             $display("sending from %d to %d", rnk, dest);
-            snd(data_out, dest, 1, rnk);
+            ready_snd = 1'b1;
+            //snd(data_out, dest, 1, rnk);
             credit_next = yumi ? credit : credit - 1;
             $display("sender has %d credits", credit_next);
             // do some other stuff, maybe change data_out

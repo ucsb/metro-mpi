@@ -1,4 +1,8 @@
-../sendrecv_testbench.sv
-../sendrecv_sv.sv
 ../sendrecv_cpp.cpp
+../metro_mpi_pkg.sv
+../receiver_mpi.sv
+../sender_mpi.sv
+../fake_node_mpi.sv
+../top_mpi_tb.sv
+../top_vcs_tb.sv
 

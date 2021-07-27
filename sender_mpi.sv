@@ -30,20 +30,30 @@ module sender_mpi (
     always_comb begin
         valid_o   = 1'b0;
         data_o    = 64'h0;
-        credit_d  = credit_q +{2'b0,yummy_i} - {2'b0,valid_o};;
-        if (rank_i == 0) begin
+        credit_d = credit_q;
+        if (credit_q != 0) begin
+            valid_o = 1'b1;
+            data_o = default_data;
+            credit_d = yummy_i ? credit_q : credit_q - 1;
+            // do some other stuff, maybe change data_out
+        end
+        else if (yummy_i) begin  //should it be else if??
+            credit_d = credit_q + 1;
+        end
+        //credit_d  = credit_q + {2'b0,yummy_i} - {2'b0,valid_o};
+        //if (rank_i == 0) begin
             // Credit management sending
-            if ((credit_q != 0) & rstn_i) begin
-                valid_o   = 1'b1;
-                data_o    = default_data;
-                credit_d  = credit_q - 1;
-            end
+            //if ((credit_q != 0) & rstn_i) begin
+            //    valid_o   = 1'b1;
+            //    data_o    = default_data;
+            //    credit_d  = credit_q - 1;
+            //end
             // Print logic
             //if (yummy_i) begin  //should it be else if??
                 //$display("incrementing sender credits");
             //    credit_d  = credit_q + 1;
             //end
-        end
+        //end
     end
 
 endmodule

@@ -1,4 +1,4 @@
 #!/bin/bash
 
 mpic++ -shared -fPIC ../sendrecv_cpp.cpp -o sendrecv_cpp.so
-vcs -sverilog -cpp mpic++ -f flist
+vcs -sverilog -cpp mpic++ -f flist -LDFLAGS -Wl,--no-as-needed

@@ -11,3 +11,6 @@ fake_node:
 
 run:
 	mpirun -output-filename logfile -np 2 ./obj_dir/Vtop_mpi_tb
+
+vcs_run:
+	mpirun -np 2 ./simv

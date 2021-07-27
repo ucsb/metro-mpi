@@ -99,7 +99,7 @@ module fake_node_mpi (
     always @(posedge clk_i, negedge rstn_i) begin
         if (~rstn_i) begin
             $display("[SV] reset fake node");
-            //valid_yummy_in  <= 1'b0;
+            valid_yummy_in  <= 1'b0;
             valid_data_in   <= 'h0;
             buffer_data_in  <= 'h0;
             buffer_yummy_in <= 'h0;
